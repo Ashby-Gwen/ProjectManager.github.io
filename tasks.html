@@ -51,6 +51,23 @@
             border: 1px solid #ccc;
         }
 
+        .delete-task-btn {
+            background-color: #f44336; /* Red */
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-left: auto; /* push to right */
+            font-weight: bold;
+            transition: 0.3s;
+        }
+
+        .delete-task-btn:hover {
+            background-color: #d32f2f;
+        }
+
+
         /* INSTRUCTION STYLES */
         #instructions {
             background-color: #f9f9f9;
@@ -175,7 +192,9 @@ function renderTasks() {
             <input type="checkbox" ${task.status === "Done" ? "checked" : ""} data-id="${task.id}">
             <span class="task-name ${task.status === "Done" ? "done" : ""}">${task.name}</span>
             <span class="deadline">${task.deadline}</span>
+            <button class="delete-task-btn" data-id="${task.id}">Delete</button>
         `;
+
         container.appendChild(div);
     });
     attachCheckboxEvents();
@@ -199,6 +218,29 @@ function attachCheckboxEvents() {
         });
     });
 }
+
+// -----------------------------
+// DELETE FUNCTION
+// -----------------------------
+
+function attachDeleteEvents() {
+    document.querySelectorAll(".delete-task-btn").forEach(btn => {
+        btn.addEventListener("click", function() {
+            if (entered !== PASSWORD) return alert("Incorrect password. Cannot delete task.");
+    
+            const id = this.getAttribute("data-id");
+            tasks = tasks.filter(task => task.id !== id);
+    
+            // Reassign IDs so they remain unique
+            tasks.forEach((task, index) => task.id = (index + 1).toString());
+    
+            saveTasks();
+            renderTasks();
+            renderDeadlines();
+        });
+    });
+}
+
 
 // -----------------------------
 // RENDER DEADLINES
