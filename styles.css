@@ -110,3 +110,44 @@ footer {
     opacity: 0.6;
 }
 
+/* TEAM SECTION */
+.team-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 20px;
+    margin-top: 20px;
+}
+
+.team-card {
+    background: #fff;
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.08);
+    transition: 0.3s;
+}
+
+.team-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+}
+
+.team-card img {
+    width: 100%;
+    height: 170px;
+    object-fit: cover;
+    border-radius: 8px;
+    margin-bottom: 10px;
+}
+
+.team-card h2 {
+    font-size: 1.1rem;
+    margin-bottom: 5px;
+}
+
+.team-card p {
+    font-size: 0.95rem;
+    color: gray;
+}
+
+
