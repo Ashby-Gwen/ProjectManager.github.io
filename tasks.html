@@ -5,6 +5,60 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tasks</title>
     <link rel="stylesheet" href="styles.css">
+    <style>
+        /* TASK ITEM STYLES */
+        .task-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 0;
+        }
+        .task-name.done {
+            text-decoration: line-through;
+            opacity: 0.5;
+        }
+
+        /* BUTTON STYLES */
+        #add-task-btn, #export-csv-btn {
+            padding: 10px 18px;
+            margin: 5px 0;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: 0.3s;
+        }
+        #add-task-btn {
+            background-color: #4CAF50;
+            color: white;
+        }
+        #add-task-btn:hover {
+            background-color: #45a049;
+        }
+        #export-csv-btn {
+            background-color: #008CBA;
+            color: white;
+        }
+        #export-csv-btn:hover {
+            background-color: #007bb5;
+        }
+
+        /* INPUT FIELDS */
+        #add-task-section input[type="text"], #add-task-section input[type="date"] {
+            padding: 8px;
+            margin: 5px 5px 5px 0;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+
+        /* INSTRUCTION STYLES */
+        #instructions {
+            background-color: #f9f9f9;
+            border-left: 5px solid #4CAF50;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+    </style>
 </head>
 <body>
 
@@ -20,8 +74,17 @@
 
 <main>
     <section class="section">
-        <h1>Task List</h1>
-        <div id="task-container"></div>
+        <h1>Task Management</h1>
+
+        <div id="instructions">
+            <h3>Instructions:</h3>
+            <ol>
+                <li>Enter your password to access editing tasks.</li>
+                <li>Add a new task by typing the task name and choosing a deadline, then click <strong>Add Task</strong>.</li>
+                <li>Update a task’s status by checking the box next to it. Completed tasks will cross out automatically.</li>
+                <li>Export your updated task list anytime by clicking <strong>Export CSV</strong>. You can upload this CSV to GitHub if needed.</li>
+            </ol>
+        </div>
 
         <!-- Add Task Form -->
         <div id="add-task-section">
@@ -30,6 +93,8 @@
             <button id="add-task-btn">Add Task</button>
             <button id="export-csv-btn">Export CSV</button>
         </div>
+
+        <div id="task-container"></div>
     </section>
 
     <section class="section">
@@ -47,6 +112,16 @@ const CSV_KEY = "tasks_csv_data";
 let tasks = [];
 
 // -----------------------------
+// PASSWORD PROTECTION
+// -----------------------------
+const PASSWORD = "admin123"; // change to your password
+const entered = prompt("Enter password to edit tasks:");
+if (entered !== PASSWORD) {
+    alert("Incorrect password. You can only view tasks.");
+    document.getElementById("add-task-section").style.display = "none";
+}
+
+// -----------------------------
 // LOAD CSV
 // -----------------------------
 async function loadCSV() {
@@ -54,10 +129,15 @@ async function loadCSV() {
     if (saved) {
         tasks = JSON.parse(saved);
     } else {
-        const response = await fetch("tasks.csv");
-        const text = await response.text();
-        tasks = parseCSV(text);
-        saveTasks();
+        try {
+            const response = await fetch("tasks.csv");
+            const text = await response.text();
+            tasks = parseCSV(text);
+            saveTasks();
+        } catch (err) {
+            console.warn("tasks.csv not found, starting empty.");
+            tasks = [];
+        }
     }
     renderTasks();
     renderDeadlines();
@@ -107,6 +187,7 @@ function renderTasks() {
 function attachCheckboxEvents() {
     document.querySelectorAll("input[type='checkbox']").forEach(cb => {
         cb.addEventListener("change", function() {
+            if (entered !== PASSWORD) return;
             const id = this.getAttribute("data-id");
             tasks = tasks.map(task => {
                 if (task.id === id) task.status = this.checked ? "Done" : "Pending";
@@ -141,6 +222,7 @@ function renderDeadlines() {
 // ADD TASK
 // -----------------------------
 function addTask(name, deadline) {
+    if (entered !== PASSWORD) return alert("Incorrect password. Cannot add task.");
     if (!name || !deadline) return alert("Enter task name and deadline!");
     const newTask = {
         id: (tasks.length + 1).toString(),
