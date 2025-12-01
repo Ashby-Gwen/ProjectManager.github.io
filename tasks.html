@@ -6,7 +6,6 @@
     <title>Tasks</title>
     <link rel="stylesheet" href="styles.css">
 </head>
-
 <body>
 
 <header>
@@ -23,6 +22,14 @@
     <section class="section">
         <h1>Task List</h1>
         <div id="task-container"></div>
+
+        <!-- Add Task Form -->
+        <div id="add-task-section">
+            <input type="text" id="new-task-name" placeholder="Task name">
+            <input type="date" id="new-task-deadline">
+            <button id="add-task-btn">Add Task</button>
+            <button id="export-csv-btn">Export CSV</button>
+        </div>
     </section>
 
     <section class="section">
@@ -35,61 +42,48 @@
     <p>© 2025 Project Manager</p>
 </footer>
 
-<script src="script.js"></script>
-    <script>// -----------------------------
-// CSV PARSER + LOCALSTORAGE SETUP
-// -----------------------------
-
+<script>
 const CSV_KEY = "tasks_csv_data";
-
-// Load CSV from localStorage or use a default
 let tasks = [];
 
+// -----------------------------
+// LOAD CSV
+// -----------------------------
 async function loadCSV() {
     const saved = localStorage.getItem(CSV_KEY);
-
     if (saved) {
         tasks = JSON.parse(saved);
-        renderTasks();
-        renderDeadlines();
-        return;
+    } else {
+        const response = await fetch("tasks.csv");
+        const text = await response.text();
+        tasks = parseCSV(text);
+        saveTasks();
     }
-
-    // If no saved data, load from file
-    const response = await fetch("tasks.csv");
-    const text = await response.text();
-    tasks = parseCSV(text);
-    saveTasks();
     renderTasks();
     renderDeadlines();
 }
 
-// Convert CSV to array of objects
+// -----------------------------
+// PARSE CSV
+// -----------------------------
 function parseCSV(csv) {
     const lines = csv.trim().split("\n");
-    const headers = lines[0].split(",");
-
     return lines.slice(1).map(line => {
-        const values = line.split(",");
-        return {
-            id: values[0],
-            name: values[1],
-            deadline: values[2],
-            status: values[3]
-        };
+        const [id, name, deadline, status] = line.split(",");
+        return { id, name, deadline, status };
     });
 }
 
-// Save updated tasks to localStorage
+// -----------------------------
+// SAVE TO LOCALSTORAGE
+// -----------------------------
 function saveTasks() {
     localStorage.setItem(CSV_KEY, JSON.stringify(tasks));
 }
 
-
 // -----------------------------
-// RENDER TASK LIST
+// RENDER TASKS
 // -----------------------------
-
 function renderTasks() {
     const container = document.getElementById("task-container");
     container.innerHTML = "";
@@ -97,32 +91,27 @@ function renderTasks() {
     tasks.forEach(task => {
         const div = document.createElement("div");
         div.className = "task-item";
-
         div.innerHTML = `
             <input type="checkbox" ${task.status === "Done" ? "checked" : ""} data-id="${task.id}">
-            <span class="task-name ${task.status === 'Done' ? 'done' : ''}">${task.name}</span>
+            <span class="task-name ${task.status === "Done" ? "done" : ""}">${task.name}</span>
             <span class="deadline">${task.deadline}</span>
         `;
-
         container.appendChild(div);
     });
-
     attachCheckboxEvents();
 }
 
-// Add event listener for checkboxes
+// -----------------------------
+// CHECKBOX EVENT
+// -----------------------------
 function attachCheckboxEvents() {
     document.querySelectorAll("input[type='checkbox']").forEach(cb => {
-        cb.addEventListener("change", function () {
+        cb.addEventListener("change", function() {
             const id = this.getAttribute("data-id");
-
             tasks = tasks.map(task => {
-                if (task.id === id) {
-                    task.status = this.checked ? "Done" : "Pending";
-                }
+                if (task.id === id) task.status = this.checked ? "Done" : "Pending";
                 return task;
             });
-
             saveTasks();
             renderTasks();
             renderDeadlines();
@@ -130,23 +119,16 @@ function attachCheckboxEvents() {
     });
 }
 
-
 // -----------------------------
-// UPCOMING DEADLINES
+// RENDER DEADLINES
 // -----------------------------
-
 function renderDeadlines() {
     const list = document.getElementById("deadline-list");
     list.innerHTML = "";
 
     const now = new Date();
-
-    const upcoming = tasks.filter(task => {
-        const date = new Date(task.deadline);
-        return date >= now && task.status !== "Done";
-    });
-
-    upcoming.sort((a, b) => new Date(a.deadline) - new Date(b.deadline));
+    const upcoming = tasks.filter(task => new Date(task.deadline) >= now && task.status !== "Done");
+    upcoming.sort((a,b) => new Date(a.deadline) - new Date(b.deadline));
 
     upcoming.forEach(task => {
         const li = document.createElement("li");
@@ -155,38 +137,30 @@ function renderDeadlines() {
     });
 }
 
-
 // -----------------------------
-// ADD NEW TASK
+// ADD TASK
 // -----------------------------
-
 function addTask(name, deadline) {
+    if (!name || !deadline) return alert("Enter task name and deadline!");
     const newTask = {
         id: (tasks.length + 1).toString(),
         name,
         deadline,
         status: "Pending"
     };
-
     tasks.push(newTask);
     saveTasks();
     renderTasks();
     renderDeadlines();
 }
 
-
 // -----------------------------
-// EXPORT UPDATED CSV
+// EXPORT CSV
 // -----------------------------
-
 function exportCSV() {
     let csv = "ID,Task Name,Deadline,Status\n";
+    tasks.forEach(t => { csv += `${t.id},${t.name},${t.deadline},${t.status}\n`; });
 
-    tasks.forEach(t => {
-        csv += `${t.id},${t.name},${t.deadline},${t.status}\n`;
-    });
-
-    // Create downloadable file
     const blob = new Blob([csv], { type: "text/csv" });
     const url = URL.createObjectURL(blob);
 
@@ -196,9 +170,19 @@ function exportCSV() {
     a.click();
 }
 
+// -----------------------------
+// EVENTS
+// -----------------------------
+document.getElementById("add-task-btn").addEventListener("click", () => {
+    const name = document.getElementById("new-task-name").value;
+    const deadline = document.getElementById("new-task-deadline").value;
+    addTask(name, deadline);
+});
+
+document.getElementById("export-csv-btn").addEventListener("click", exportCSV);
 
 // -----------------------------
-// INITIALIZE SYSTEM
+// INITIALIZE
 // -----------------------------
 loadCSV();
 </script>
