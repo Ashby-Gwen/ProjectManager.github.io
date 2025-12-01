@@ -3,15 +3,168 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Project Manager</title>
-    <link rel="stylesheet" href="styles.css" />
+    <title>Project Manager Dashboard</title>
+    
+    <style>
+        /* GLOBAL RESET & BASE STYLES */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f7f9; /* Light background */
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        /* HEADER & NAVIGATION */
+        header {
+            background-color: #008CBA; /* Theme Blue */
+            color: white;
+            padding: 15px 0;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .navbar {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+        }
+
+        .logo {
+            font-size: 1.8em;
+            font-weight: bold;
+        }
+
+        .nav-links {
+            list-style: none;
+            display: flex;
+            margin: 0;
+            padding: 0;
+        }
+
+        .nav-links li a {
+            color: white;
+            text-decoration: none;
+            padding: 10px 15px;
+            font-weight: 500;
+            transition: background-color 0.3s, color 0.3s;
+            border-radius: 4px;
+        }
+
+        .nav-links li a:hover {
+            background-color: #007bb5; /* Darker Blue on hover */
+        }
+        
+        /* MAIN CONTENT & SECTIONS */
+        main {
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 0 20px;
+        }
+        
+        .section {
+            background: white;
+            padding: 30px;
+            margin-bottom: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        }
+        
+        .section h1 {
+            color: #008CBA; /* Theme Blue */
+            border-bottom: 2px solid #4CAF50; /* Theme Green highlight */
+            padding-bottom: 10px;
+            margin-top: 0;
+            margin-bottom: 25px;
+        }
+
+        /* FEATURE LIST STYLES */
+        .feature-list {
+            list-style: none;
+            padding: 0;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+        }
+        
+        .feature-list li {
+            padding: 12px;
+            background-color: #f0fff0; /* Light green background */
+            border-left: 5px solid #4CAF50; /* Theme Green */
+            border-radius: 4px;
+            font-weight: 600;
+            transition: transform 0.2s;
+        }
+        .feature-list li:hover {
+            transform: translateY(-2px);
+            background-color: #e6ffe6;
+        }
+
+        /* TEAM CONTAINER & CARDS */
+        .team-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: space-around;
+        }
+        
+        .team-card {
+            background-color: #ffffff;
+            border: 1px solid #eee;
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+            flex: 1 1 200px; /* Allows cards to be flexible and wrap */
+            max-width: 220px;
+            transition: box-shadow 0.3s;
+        }
+        .team-card:hover {
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+        }
+
+        .team-card img {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-bottom: 15px;
+            border: 3px solid #008CBA;
+        }
+
+        .team-card h2 {
+            margin: 5px 0;
+            font-size: 1.2em;
+            color: #333;
+        }
+
+        .team-card p {
+            margin: 0;
+            color: #555;
+            font-size: 0.9em;
+        }
+
+        /* FOOTER */
+        footer {
+            text-align: center;
+            padding: 20px;
+            background-color: #333;
+            color: #ccc;
+            margin-top: 30px;
+        }
+    </style>
 </head>
 
 <body>
 
-    <!-- HEADER -->
     <header>
-        <nav class="navbar">
+        <nav class="navbar" role="navigation" aria-label="Main Navigation">
             <div class="logo">Project Manager</div>
             <ul class="nav-links">
                 <li><a href="#dashboard">Dashboard</a></li>
@@ -22,61 +175,82 @@
         </nav>
     </header>
 
-    <!-- BODY -->
     <main>
         <section class="section" id="dashboard">
-            <h1>System Features</h1>
-            <ul class="feature-list">
-                <li>✔ Project Dashboard Overview</li>
-                <li>✔ Checklist Function</li>
-                <li>✔ Upcoming Deadline Notifications</li>
-                <li>✔ Static Data (No Database Required)</li>
-                <li>✔ Simple Task Updates Directly in Code</li>
-                <li>✔ Task Completion: Crossout + Gray Text</li>
+            <h1>System Features 💡</h1>
+            <ul class="feature-list" role="list">
+                <li>✔ **Project Dashboard Overview**: High-level summary of project status.</li>
+                <li>✔ **Checklist Function**: Interactive task list for progress tracking.</li>
+                <li>✔ **Upcoming Deadline Notifications**: Sorts tasks to show urgency.</li>
+                <li>✔ **Static Data Storage**: Uses LocalStorage/CSV (No Database Required).</li>
+                <li>✔ **Simple Task Updates**: Editing functions available for authorized users.</li>
+                <li>✔ **Task Completion Visuals**: Automatic crossout and gray text for finished items.</li>
             </ul>
         </section>
-        <div id="teams" class="section">
-            <h1>Meet the Team</h1>
-    
-            <div class="team-container">
         
-                <div class="team-card">
-                    <img src="images/member1.jpg" alt="Member 1 Photo">
-                    <h2>Member Name 1</h2>
-                    <p>Position / Role</p>
+        <section class="section" id="teams">
+            <h1>Meet the Team 👥</h1>
+            <div class="team-container" id="team-container">
                 </div>
+        </section>
         
-                <div class="team-card">
-                    <img src="images/member2.jpg" alt="Member 2 Photo">
-                    <h2>Member Name 2</h2>
-                    <p>Position / Role</p>
-                </div>
-        
-                <div class="team-card">
-                    <img src="images/member3.jpg" alt="Member 3 Photo">
-                    <h2>Member Name 3</h2>
-                    <p>Position / Role</p>
-                </div>
-        
-                <div class="team-card">
-                    <img src="images/member4.jpg" alt="Member 4 Photo">
-                    <h2>Member Name 4</h2>
-                    <p>Position / Role</p>
-                </div>
-        
-                <div class="team-card">
-                    <img src="images/member5.jpg" alt="Member 5 Photo">
-                    <h2>Member Name 5</h2>
-                    <p>Position / Role</p>
-                </div>
-        
-            </div>
-        </div>
+        <section class="section" id="about">
+            <h1>About This Tool ⚙️</h1>
+            <p>This is a simple, static-file-based Project Management tool designed for small teams and personal use. It utilizes client-side storage to manage tasks without the need for a backend server or database, keeping deployment and maintenance lightweight.</p>
+            <p>Use the <a href="tasks.html" style="color: #4CAF50; font-weight: bold;">Tasks</a> link to manage your checklists.</p>
+        </section>
     </main>
-    <!-- FOOTER -->
+    
     <footer>
         <p>© 2025 Project Manager. All rights reserved.</p>
     </footer>
+
+    <script>
+        // --- DATA MODEL (Easier to manage team data centrally) ---
+        const TEAM_MEMBERS = [
+            { name: "Alex Johnson", role: "Project Lead", image: "images/member1.jpg" },
+            { name: "Ben Smith", role: "Lead Developer", image: "images/member2.jpg" },
+            { name: "Chloe Lee", role: "UX Designer", image: "images/member3.jpg" },
+            { name: "David Chen", role: "Backend Engineer", image: "images/member4.jpg" },
+            { name: "Emily White", role: "QA Tester", image: "images/member5.jpg" },
+            { name: "Frank Green", role: "Technical Writer", image: "images/member6.jpg" } // Added an extra member for better layout demo
+        ];
+
+        // --- RENDER FUNCTION ---
+        function renderTeamCards() {
+            const container = document.getElementById('team-container');
+            container.innerHTML = ''; // Clear existing content
+
+            TEAM_MEMBERS.forEach(member => {
+                const card = document.createElement('div');
+                card.className = 'team-card';
+                card.innerHTML = `
+                    <img src="${member.image}" alt="${member.name} Photo" loading="lazy" aria-label="${member.name}">
+                    <h2>${member.name}</h2>
+                    <p>${member.role}</p>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        // --- NAVIGATION IMPROVEMENT (Smooth Scroll) ---
+        function enableSmoothScroll() {
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    document.querySelector(this.getAttribute('href')).scrollIntoView({
+                        behavior: 'smooth'
+                    });
+                });
+            });
+        }
+
+        // --- INITIALIZATION ---
+        document.addEventListener('DOMContentLoaded', () => {
+            renderTeamCards();
+            enableSmoothScroll();
+        });
+    </script>
 
 </body>
 </html>
