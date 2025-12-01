@@ -36,5 +36,171 @@
 </footer>
 
 <script src="script.js"></script>
+    <script>// -----------------------------
+// CSV PARSER + LOCALSTORAGE SETUP
+// -----------------------------
+
+const CSV_KEY = "tasks_csv_data";
+
+// Load CSV from localStorage or use a default
+let tasks = [];
+
+async function loadCSV() {
+    const saved = localStorage.getItem(CSV_KEY);
+
+    if (saved) {
+        tasks = JSON.parse(saved);
+        renderTasks();
+        renderDeadlines();
+        return;
+    }
+
+    // If no saved data, load from file
+    const response = await fetch("tasks.csv");
+    const text = await response.text();
+    tasks = parseCSV(text);
+    saveTasks();
+    renderTasks();
+    renderDeadlines();
+}
+
+// Convert CSV to array of objects
+function parseCSV(csv) {
+    const lines = csv.trim().split("\n");
+    const headers = lines[0].split(",");
+
+    return lines.slice(1).map(line => {
+        const values = line.split(",");
+        return {
+            id: values[0],
+            name: values[1],
+            deadline: values[2],
+            status: values[3]
+        };
+    });
+}
+
+// Save updated tasks to localStorage
+function saveTasks() {
+    localStorage.setItem(CSV_KEY, JSON.stringify(tasks));
+}
+
+
+// -----------------------------
+// RENDER TASK LIST
+// -----------------------------
+
+function renderTasks() {
+    const container = document.getElementById("task-container");
+    container.innerHTML = "";
+
+    tasks.forEach(task => {
+        const div = document.createElement("div");
+        div.className = "task-item";
+
+        div.innerHTML = `
+            <input type="checkbox" ${task.status === "Done" ? "checked" : ""} data-id="${task.id}">
+            <span class="task-name ${task.status === 'Done' ? 'done' : ''}">${task.name}</span>
+            <span class="deadline">${task.deadline}</span>
+        `;
+
+        container.appendChild(div);
+    });
+
+    attachCheckboxEvents();
+}
+
+// Add event listener for checkboxes
+function attachCheckboxEvents() {
+    document.querySelectorAll("input[type='checkbox']").forEach(cb => {
+        cb.addEventListener("change", function () {
+            const id = this.getAttribute("data-id");
+
+            tasks = tasks.map(task => {
+                if (task.id === id) {
+                    task.status = this.checked ? "Done" : "Pending";
+                }
+                return task;
+            });
+
+            saveTasks();
+            renderTasks();
+            renderDeadlines();
+        });
+    });
+}
+
+
+// -----------------------------
+// UPCOMING DEADLINES
+// -----------------------------
+
+function renderDeadlines() {
+    const list = document.getElementById("deadline-list");
+    list.innerHTML = "";
+
+    const now = new Date();
+
+    const upcoming = tasks.filter(task => {
+        const date = new Date(task.deadline);
+        return date >= now && task.status !== "Done";
+    });
+
+    upcoming.sort((a, b) => new Date(a.deadline) - new Date(b.deadline));
+
+    upcoming.forEach(task => {
+        const li = document.createElement("li");
+        li.textContent = `${task.name} — due ${task.deadline}`;
+        list.appendChild(li);
+    });
+}
+
+
+// -----------------------------
+// ADD NEW TASK
+// -----------------------------
+
+function addTask(name, deadline) {
+    const newTask = {
+        id: (tasks.length + 1).toString(),
+        name,
+        deadline,
+        status: "Pending"
+    };
+
+    tasks.push(newTask);
+    saveTasks();
+    renderTasks();
+    renderDeadlines();
+}
+
+
+// -----------------------------
+// EXPORT UPDATED CSV
+// -----------------------------
+
+function exportCSV() {
+    let csv = "ID,Task Name,Deadline,Status\n";
+
+    tasks.forEach(t => {
+        csv += `${t.id},${t.name},${t.deadline},${t.status}\n`;
+    });
+
+    // Create downloadable file
+    const blob = new Blob([csv], { type: "text/csv" });
+    const url = URL.createObjectURL(blob);
+
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "updated_tasks.csv";
+    a.click();
+}
+
+
+// -----------------------------
+// INITIALIZE SYSTEM
+// -----------------------------
+loadCSV();
+</script>
 </body>
 </html>
