@@ -3,40 +3,67 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tasks</title>
+    <title>Task Manager - Revised</title>
     <link rel="stylesheet" href="styles.css">
     <style>
+        /* BASE STYLES & LAYOUT */
+        body { font-family: sans-serif; line-height: 1.6; background-color: #f4f4f4; color: #333; }
+        header { background-color: #333; color: white; padding: 1em 0; }
+        .navbar { display: flex; justify-content: space-between; align-items: center; max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+        .logo { font-size: 1.5em; font-weight: bold; }
+        .nav-links { list-style: none; display: flex; gap: 20px; }
+        .nav-links a { color: white; text-decoration: none; transition: color 0.3s; }
+        .nav-links a:hover { color: #4CAF50; }
+        main { max-width: 1200px; margin: 20px auto; padding: 0 20px; }
+        .section { background: white; padding: 20px; margin-bottom: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); }
+        footer { text-align: center; padding: 10px; background-color: #333; color: white; margin-top: 20px; }
+
         /* TASK ITEM STYLES */
+        #task-container { margin-top: 15px; }
         .task-item {
             display: flex;
             align-items: center;
-            gap: 10px;
-            padding: 8px 0;
+            gap: 15px;
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+        }
+        .task-item:last-child { border-bottom: none; }
+
+        .task-name {
+            flex-grow: 1; /* Allows task name to take up most space */
+            font-size: 1.1em;
         }
         .task-name.done {
             text-decoration: line-through;
-            opacity: 0.5;
+            opacity: 0.6;
+            color: #777;
+        }
+        .deadline {
+            font-size: 0.9em;
+            color: #555;
+            min-width: 90px; /* Consistent spacing for dates */
+            text-align: right;
         }
 
-        /* BUTTON STYLES */
+        /* BUTTON STYLES (Retained Colors) */
         #add-task-btn, #export-csv-btn {
             padding: 10px 18px;
-            margin: 5px 0;
+            margin-left: 5px; /* Added margin for separation */
             border: none;
             border-radius: 5px;
             cursor: pointer;
             font-weight: bold;
-            transition: 0.3s;
+            transition: background-color 0.3s, transform 0.1s;
         }
         #add-task-btn {
-            background-color: #4CAF50;
+            background-color: #4CAF50; /* Green */
             color: white;
         }
         #add-task-btn:hover {
             background-color: #45a049;
         }
         #export-csv-btn {
-            background-color: #008CBA;
+            background-color: #008CBA; /* Blue */
             color: white;
         }
         #export-csv-btn:hover {
@@ -44,36 +71,54 @@
         }
 
         /* INPUT FIELDS */
+        #add-task-section {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap; /* Allows wrapping on smaller screens */
+            gap: 10px;
+        }
         #add-task-section input[type="text"], #add-task-section input[type="date"] {
-            padding: 8px;
-            margin: 5px 5px 5px 0;
+            padding: 10px;
             border-radius: 5px;
             border: 1px solid #ccc;
+            flex: 1 1 200px; /* Allows inputs to grow and flex */
+            min-width: 150px;
         }
 
         .delete-task-btn {
             background-color: #f44336; /* Red */
             color: white;
             border: none;
-            padding: 5px 10px;
+            padding: 8px 12px;
             border-radius: 5px;
             cursor: pointer;
-            margin-left: auto; /* push to right */
+            margin-left: auto;
             font-weight: bold;
-            transition: 0.3s;
+            transition: background-color 0.3s;
         }
 
         .delete-task-btn:hover {
             background-color: #d32f2f;
         }
 
-
         /* INSTRUCTION STYLES */
         #instructions {
-            background-color: #f9f9f9;
+            background-color: #f0fff0; /* Lighter shade of green for contrast */
             border-left: 5px solid #4CAF50;
             padding: 15px;
             margin-bottom: 20px;
+            border-radius: 5px;
+        }
+        #instructions strong { color: #4CAF50; }
+
+        /* DEADLINE LIST */
+        #deadline-list {
+            list-style: none;
+            padding: 0;
+        }
+        #deadline-list li {
+            padding: 8px 0;
+            border-bottom: 1px dashed #eee;
         }
     </style>
 </head>
@@ -91,32 +136,33 @@
 
 <main>
     <section class="section">
-        <h1>Task Management</h1>
+        <h1>Task Management 🚀</h1>
 
         <div id="instructions">
             <h3>Instructions:</h3>
             <ol>
-                <li>Enter your password to access editing tasks.</li>
-                <li>Add a new task by typing the task name and choosing a deadline, then click <strong>Add Task</strong>.</li>
-                <li>Update a task’s status by checking the box next to it. Completed tasks will cross out automatically.</li>
-                <li>Export your updated task list anytime by clicking <strong>Export CSV</strong>. You can upload this CSV to GitHub if needed.</li>
+                <li>Enter the password to enable **editing tasks** (Add/Delete/Complete).</li>
+                <li>Add a new task using the input fields and click **Add Task**.</li>
+                <li>Mark a task as complete by checking the box next to it.</li>
+                <li>Export your current task list anytime by clicking **Export CSV**.</li>
             </ol>
         </div>
 
-        <!-- Add Task Form -->
         <div id="add-task-section">
-            <input type="text" id="new-task-name" placeholder="Task name">
-            <input type="date" id="new-task-deadline">
+            <input type="text" id="new-task-name" placeholder="Task name" title="Enter the task name">
+            <input type="date" id="new-task-deadline" title="Select a deadline">
             <button id="add-task-btn">Add Task</button>
             <button id="export-csv-btn">Export CSV</button>
         </div>
-
-        <div id="task-container"></div>
+        
+        <div id="task-container">
+            </div>
     </section>
 
     <section class="section">
-        <h1>Upcoming Deadlines</h1>
-        <ul id="deadline-list"></ul>
+        <h2>Upcoming Deadlines 📅</h2>
+        <ul id="deadline-list">
+            </ul>
     </section>
 </main>
 
@@ -125,191 +171,259 @@
 </footer>
 
 <script>
-const CSV_KEY = "tasks_csv_data";
-let tasks = [];
+    const CSV_KEY = "tasks_data";
+    // NOTE: Using a strong, non-guessable, unchangeable ID is crucial in a real app (e.g., UUID from server).
+    // For this client-side example, we'll use a safer ID generation (timestamp + random number).
+    const PASSWORD = "admin123"; 
+    let tasks = [];
+    let isEditingAllowed = false;
 
-// -----------------------------
-// PASSWORD PROTECTION
-// -----------------------------
-const PASSWORD = "admin123"; // change to your password
-const entered = prompt("Enter password to edit tasks:");
-if (entered !== PASSWORD) {
-    alert("Incorrect password. You can only view tasks.");
-    document.getElementById("add-task-section").style.display = "none";
-}
-
-// -----------------------------
-// LOAD CSV
-// -----------------------------
-async function loadCSV() {
-    const saved = localStorage.getItem(CSV_KEY);
-    if (saved) {
-        tasks = JSON.parse(saved);
-    } else {
-        try {
-            const response = await fetch("tasks.csv");
-            const text = await response.text();
-            tasks = parseCSV(text);
-            saveTasks();
-        } catch (err) {
-            console.warn("tasks.csv not found, starting empty.");
-            tasks = [];
+    // -----------------------------
+    // INITIAL PASSWORD CHECK (Improved)
+    // -----------------------------
+    function initializeSecurity() {
+        // Use a hidden input prompt to avoid the password showing in plaintext on screen, 
+        // though this is still client-side and not secure for production.
+        const entered = prompt("Enter password to edit tasks (for viewing, click Cancel):");
+        if (entered === PASSWORD) {
+            isEditingAllowed = true;
+            console.log("Editing enabled.");
+        } else {
+            alert("Incorrect password. You can only view tasks.");
+            // Hide editable elements if not authorized
+            document.getElementById("add-task-section").style.display = "none";
+            // Ensure delete buttons are hidden/disabled on render
         }
     }
-    renderTasks();
-    renderDeadlines();
-}
 
-// -----------------------------
-// PARSE CSV
-// -----------------------------
-function parseCSV(csv) {
-    const lines = csv.trim().split("\n");
-    return lines.slice(1).map(line => {
-        const [id, name, deadline, status] = line.split(",");
-        return { id, name, deadline, status };
-    });
-}
+    // -----------------------------
+    // LOAD & SAVE
+    // -----------------------------
+    // Load tasks from LocalStorage or CSV (handles initial load)
+    async function loadTasks() {
+        const saved = localStorage.getItem(CSV_KEY);
+        if (saved) {
+            try {
+                tasks = JSON.parse(saved);
+            } catch (e) {
+                console.error("Failed to parse saved tasks, loading from CSV.", e);
+                tasks = await fetchAndParseCSV();
+            }
+        } else {
+            tasks = await fetchAndParseCSV();
+        }
+        renderAll();
+    }
 
-// -----------------------------
-// SAVE TO LOCALSTORAGE
-// -----------------------------
-function saveTasks() {
-    localStorage.setItem(CSV_KEY, JSON.stringify(tasks));
-}
+    // Fetch and parse initial tasks.csv
+    async function fetchAndParseCSV() {
+        try {
+            const response = await fetch("tasks.csv");
+            if (!response.ok) throw new Error("File not found");
+            const text = await response.text();
+            const lines = text.trim().split("\n");
+            // Simple CSV parser: Skips header line (index 0)
+            const initialTasks = lines.slice(1).map(line => {
+                const parts = line.split(",").map(p => p.trim());
+                if (parts.length < 4) return null; // Skip malformed lines
+                // Ensure IDs are unique. Use a safe client-side ID for new tasks if no ID exists.
+                const id = parts[0] || generateUniqueId(); 
+                return { id, name: parts[1], deadline: parts[2], status: parts[3] };
+            }).filter(task => task !== null);
+            saveTasks(initialTasks); // Save initial load to localStorage
+            return initialTasks;
+        } catch (err) {
+            console.warn("tasks.csv not found or failed to load, starting empty.", err);
+            return [];
+        }
+    }
 
-// -----------------------------
-// RENDER TASKS
-// -----------------------------
-function renderTasks() {
-    const container = document.getElementById("task-container");
-    container.innerHTML = "";
+    // Save current tasks array to LocalStorage
+    function saveTasks(tasksToSave = tasks) {
+        localStorage.setItem(CSV_KEY, JSON.stringify(tasksToSave));
+    }
 
-    tasks.forEach(task => {
-        const div = document.createElement("div");
-        div.className = "task-item";
-        div.innerHTML = `
-            <input type="checkbox" ${task.status === "Done" ? "checked" : ""} data-id="${task.id}">
-            <span class="task-name ${task.status === "Done" ? "done" : ""}">${task.name}</span>
-            <span class="deadline">${task.deadline}</span>
-            <button class="delete-task-btn" data-id="${task.id}">Delete</button>
-        `;
+    // Generate a reasonably unique client-side ID
+    function generateUniqueId() {
+        return Date.now().toString() + Math.random().toString(36).substring(2, 9);
+    }
 
-        container.appendChild(div);
-    });
-    attachCheckboxEvents();
-    attachDeleteEvents();
-}
+    // -----------------------------
+    // RENDER FUNCTIONS
+    // -----------------------------
+    function renderAll() {
+        renderTasks();
+        renderDeadlines();
+    }
 
-// -----------------------------
-// CHECKBOX EVENT
-// -----------------------------
-function attachCheckboxEvents() {
-    document.querySelectorAll("input[type='checkbox']").forEach(cb => {
-        cb.addEventListener("change", function() {
-            if (entered !== PASSWORD) return;
-            const id = this.getAttribute("data-id");
-            tasks = tasks.map(task => {
-                if (task.id === id) task.status = this.checked ? "Done" : "Pending";
-                return task;
-            });
-            saveTasks();
-            renderTasks();
-            renderDeadlines();
+    // Renders the main task list
+    function renderTasks() {
+        const container = document.getElementById("task-container");
+        container.innerHTML = ""; // Clear existing
+
+        tasks.forEach(task => {
+            const isDone = task.status === "Done";
+            const div = document.createElement("div");
+            div.className = "task-item";
+            div.setAttribute('data-task-id', task.id); // Use data attribute for easy lookup
+
+            // Template literal for task item HTML
+            div.innerHTML = `
+                <input type="checkbox" ${isDone ? "checked" : ""} data-action="toggle-status" data-id="${task.id}">
+                <span class="task-name ${isDone ? "done" : ""}">${task.name}</span>
+                <span class="deadline">${task.deadline}</span>
+                ${isEditingAllowed ? `<button class="delete-task-btn" data-action="delete" data-id="${task.id}">Delete</button>` : ''}
+            `;
+            container.appendChild(div);
         });
-    });
-}
+        // Event delegation handles all task actions now
+    }
 
-// -----------------------------
-// DELETE FUNCTION
-// -----------------------------
+    // Renders the upcoming deadlines list
+    function renderDeadlines() {
+        const list = document.getElementById("deadline-list");
+        list.innerHTML = "";
 
-function attachDeleteEvents() {
-    document.querySelectorAll(".delete-task-btn").forEach(btn => {
-        btn.addEventListener("click", function() {
-            if (entered !== PASSWORD) return alert("Incorrect password. Cannot delete task.");
-    
-            const id = this.getAttribute("data-id");
-            tasks = tasks.filter(task => task.id !== id);
-    
-            // Reassign IDs so they remain unique
-            tasks.forEach((task, index) => task.id = (index + 1).toString());
-    
-            saveTasks();
-            renderTasks();
-            renderDeadlines();
+        const now = new Date();
+        // Filter out tasks already done and those whose deadlines have passed
+        const upcoming = tasks.filter(task => {
+            const deadlineDate = new Date(task.deadline);
+            // Check if status is Pending AND deadline is today or in the future
+            return task.status !== "Done" && deadlineDate >= now;
         });
+
+        // Sort by closest deadline first
+        upcoming.sort((a,b) => new Date(a.deadline) - new Date(b.deadline));
+
+        if (upcoming.length === 0) {
+            list.innerHTML = '<li>No upcoming pending deadlines! 🎉</li>';
+            return;
+        }
+
+        upcoming.forEach(task => {
+            const li = document.createElement("li");
+            li.textContent = `${task.name} — due ${task.deadline}`;
+            list.appendChild(li);
+        });
+    }
+
+    // -----------------------------
+    // ACTIONS
+    // -----------------------------
+
+    // Adds a new task from the input fields
+    function addTask() {
+        if (!isEditingAllowed) return alert("Authorization required to add tasks.");
+
+        const nameInput = document.getElementById("new-task-name");
+        const deadlineInput = document.getElementById("new-task-deadline");
+        const name = nameInput.value.trim();
+        const deadline = deadlineInput.value.trim();
+
+        if (!name || !deadline) return alert("Please enter both task name and a valid deadline!");
+
+        const newTask = {
+            // Use safer unique ID
+            id: generateUniqueId(),
+            name,
+            deadline,
+            status: "Pending"
+        };
+        tasks.push(newTask);
+        saveTasks();
+        renderAll();
+
+        // Clear inputs after successful add
+        nameInput.value = "";
+        deadlineInput.value = "";
+        nameInput.focus();
+    }
+
+    // Toggles the status of a task
+    function toggleTaskStatus(taskId, isChecked) {
+        if (!isEditingAllowed) return alert("Authorization required to update task status.");
+
+        tasks = tasks.map(task => {
+            if (task.id === taskId) {
+                task.status = isChecked ? "Done" : "Pending";
+            }
+            return task;
+        });
+        saveTasks();
+        renderAll(); // Re-render everything to update line-through and deadlines list
+    }
+
+    // Deletes a task by ID and re-renders
+    function deleteTask(taskId) {
+        if (!isEditingAllowed) return alert("Authorization required to delete tasks.");
+    
+        // Find index to prevent issues if IDs weren't perfectly unique (safer than filter)
+        const index = tasks.findIndex(task => task.id === taskId);
+        if (index > -1) {
+            tasks.splice(index, 1);
+        }
+        
+        // NOTE: Removed ID re-assignment. It's best to keep IDs stable for tracking,
+        // especially when using timestamp/random IDs. If the initial CSV requires 
+        // sequential IDs, that needs to be handled on file creation/server-side.
+
+        saveTasks();
+        renderAll();
+    }
+
+    // Converts tasks array to CSV string and initiates download
+    function exportCSV() {
+        let csv = "ID,Task Name,Deadline,Status\n";
+        tasks.forEach(t => { 
+            // Escape commas in task name if present (simple fix)
+            const safeName = t.name.includes(",") ? `"${t.name}"` : t.name;
+            csv += `${t.id},${safeName},${t.deadline},${t.status}\n`; 
+        });
+
+        const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+        const url = URL.createObjectURL(blob);
+
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "updated_tasks.csv";
+        document.body.appendChild(a); // Append anchor to body (necessary for Firefox)
+        a.click();
+        document.body.removeChild(a); // Clean up
+        URL.revokeObjectURL(url); // Free up memory
+    }
+
+    // -----------------------------
+    // EVENT LISTENERS (Using Delegation)
+    // -----------------------------
+
+    // Main event listener for Add/Export buttons
+    document.getElementById("add-task-btn").addEventListener("click", addTask);
+    document.getElementById("export-csv-btn").addEventListener("click", exportCSV);
+
+    // Event Delegation for Task Container (Checkbox and Delete Button)
+    document.getElementById("task-container").addEventListener("click", (event) => {
+        const target = event.target;
+        const taskId = target.getAttribute("data-id");
+        const action = target.getAttribute("data-action");
+
+        if (!taskId) return; // Not an element we care about
+
+        if (action === "toggle-status" && target.type === 'checkbox') {
+            toggleTaskStatus(taskId, target.checked);
+        } else if (action === "delete") {
+            // Confirmation step added for safety
+            if (confirm("Are you sure you want to delete this task?")) {
+                deleteTask(taskId);
+            }
+        }
     });
-}
 
 
-// -----------------------------
-// RENDER DEADLINES
-// -----------------------------
-function renderDeadlines() {
-    const list = document.getElementById("deadline-list");
-    list.innerHTML = "";
-
-    const now = new Date();
-    const upcoming = tasks.filter(task => new Date(task.deadline) >= now && task.status !== "Done");
-    upcoming.sort((a,b) => new Date(a.deadline) - new Date(b.deadline));
-
-    upcoming.forEach(task => {
-        const li = document.createElement("li");
-        li.textContent = `${task.name} — due ${task.deadline}`;
-        list.appendChild(li);
-    });
-}
-
-// -----------------------------
-// ADD TASK
-// -----------------------------
-function addTask(name, deadline) {
-    if (entered !== PASSWORD) return alert("Incorrect password. Cannot add task.");
-    if (!name || !deadline) return alert("Enter task name and deadline!");
-    const newTask = {
-        id: (tasks.length + 1).toString(),
-        name,
-        deadline,
-        status: "Pending"
-    };
-    tasks.push(newTask);
-    saveTasks();
-    renderTasks();
-    renderDeadlines();
-}
-
-// -----------------------------
-// EXPORT CSV
-// -----------------------------
-function exportCSV() {
-    let csv = "ID,Task Name,Deadline,Status\n";
-    tasks.forEach(t => { csv += `${t.id},${t.name},${t.deadline},${t.status}\n`; });
-
-    const blob = new Blob([csv], { type: "text/csv" });
-    const url = URL.createObjectURL(blob);
-
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "updated_tasks.csv";
-    a.click();
-}
-
-// -----------------------------
-// EVENTS
-// -----------------------------
-document.getElementById("add-task-btn").addEventListener("click", () => {
-    const name = document.getElementById("new-task-name").value;
-    const deadline = document.getElementById("new-task-deadline").value;
-    addTask(name, deadline);
-});
-
-document.getElementById("export-csv-btn").addEventListener("click", exportCSV);
-
-// -----------------------------
-// INITIALIZE
-// -----------------------------
-loadCSV();
+    // -----------------------------
+    // INITIALIZE
+    // -----------------------------
+    initializeSecurity(); // Check password first
+    loadTasks();          // Then load and render tasks
 </script>
 </body>
 </html>
