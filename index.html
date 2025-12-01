@@ -106,6 +106,37 @@
             background-color: #e6ffe6;
         }
 
+        /* UPCOMING TASK NOTIFICATION CARD */
+        .notification-card {
+            background: linear-gradient(135deg, #4CAF50, #5cb85c); /* Green gradient */
+            color: white;
+            padding: 20px 30px;
+            margin-bottom: 30px;
+            border-radius: 10px;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 1.1em;
+            font-weight: bold;
+            animation: pulse 2s infinite; /* Subtle animation for attention */
+        }
+        
+        .notification-card span {
+            display: block;
+        }
+        
+        .notification-card .task-detail {
+            font-size: 1.3em;
+            font-weight: 900;
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(76, 175, 80, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(76, 175, 80, 0); }
+        }
+
         /* TEAM CONTAINER & CARDS */
         .team-container {
             display: flex;
@@ -188,6 +219,11 @@
             </ul>
         </section>
         
+        <section id="upcoming-tasks-section">
+            <div id="notification-card-content">
+                </div>
+        </section>
+
         <section class="section" id="teams">
             <h1>Meet the Team 👥</h1>
             <div class="team-container" id="team-container">
@@ -206,7 +242,10 @@
     </footer>
 
     <script>
-        // --- DATA MODEL (Easier to manage team data centrally) ---
+        // --- CONSTANTS ---
+        const CSV_KEY = "tasks_data";
+
+        // --- DATA MODEL (Team members moved here for cleanliness) ---
         const TEAM_MEMBERS = [
             { name: "Zamiel Baguinang", role: "Documentation", image: "images/Baguinang.jpg" },
             { name: "Daniel Mabaquiao", role: "QA Tester", image: "images/Mabaquiao.jpg" },
@@ -215,10 +254,66 @@
             { name: "Ashby Gwen Ruelo", role: "Project Lead", image: "images/Ruelo.jpeg" },
         ];
 
-        // --- RENDER FUNCTION ---
+        // --- HELPER FUNCTION: DATE FORMATTING ---
+        function formatDate(dateString) {
+            const options = { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' };
+            const date = new Date(dateString.replace(/-/g, '/')); // Fixes potential date parsing issues in some browsers
+            return date.toLocaleDateString('en-US', options);
+        }
+
+        // --- RENDER UPCOMING TASKS CARD (NEW LOGIC) ---
+        function renderUpcomingTasksCard() {
+            const container = document.getElementById('notification-card-content');
+            const savedTasks = localStorage.getItem(CSV_KEY);
+            let tasks = [];
+
+            if (savedTasks) {
+                try {
+                    tasks = JSON.parse(savedTasks);
+                } catch (e) {
+                    console.error("Failed to parse tasks from localStorage.", e);
+                    // If parsing fails, fall back to empty list.
+                }
+            }
+
+            const now = new Date();
+            // Filter: Only include pending tasks with a deadline today or in the future
+            const upcoming = tasks.filter(task => {
+                const deadlineDate = new Date(task.deadline.replace(/-/g, '/'));
+                return task.status !== "Done" && deadlineDate >= now;
+            });
+
+            // Sort by closest deadline first
+            upcoming.sort((a,b) => new Date(a.deadline.replace(/-/g, '/')) - new Date(b.deadline.replace(/-/g, '/')));
+
+            if (upcoming.length > 0) {
+                const nextTask = upcoming[0];
+                const formattedDeadline = formatDate(nextTask.deadline);
+
+                container.innerHTML = `
+                    <div class="notification-card">
+                        <span>🚨 **NEXT DEADLINE DUE:**</span>
+                        <span class="task-detail">
+                            ${nextTask.name} - ${formattedDeadline}
+                        </span>
+                        <a href="tasks.html" style="color: white; text-decoration: underline;">View All Tasks &rarr;</a>
+                    </div>
+                `;
+            } else {
+                container.innerHTML = `
+                    <div class="notification-card" style="background: #3c3c3c; animation: none;">
+                        <span>✅ All tasks complete or deadlines passed.</span>
+                        <span class="task-detail">Time to relax!</span>
+                        <a href="tasks.html" style="color: white; text-decoration: underline;">Manage Tasks &rarr;</a>
+                    </div>
+                `;
+            }
+        }
+
+        // --- RENDER TEAM CARDS ---
         function renderTeamCards() {
             const container = document.getElementById('team-container');
-            container.innerHTML = ''; // Clear existing content
+            container.innerHTML = ''; 
 
             TEAM_MEMBERS.forEach(member => {
                 const card = document.createElement('div');
@@ -246,6 +341,7 @@
 
         // --- INITIALIZATION ---
         document.addEventListener('DOMContentLoaded', () => {
+            renderUpcomingTasksCard(); // New call
             renderTeamCards();
             enableSmoothScroll();
         });
