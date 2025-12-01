@@ -137,48 +137,65 @@
             100% { box-shadow: 0 0 0 0 rgba(76, 175, 80, 0); }
         }
 
-        /* TEAM CONTAINER & CARDS */
+        /* TEAM CONTAINER & CARDS - REVISED VISUALIZATION */
         .team-container {
             display: flex;
             flex-wrap: wrap;
-            gap: 20px;
-            justify-content: space-around;
+            gap: 30px; 
+            justify-content: center; 
         }
+        
         
         .team-card {
             background-color: #ffffff;
-            border: 1px solid #eee;
-            border-radius: 8px;
-            padding: 20px;
+            border-radius: 12px;
+            padding: 30px 20px 20px 20px;
             text-align: center;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
-            flex: 1 1 200px; /* Allows cards to be flexible and wrap */
-            max-width: 220px;
-            transition: box-shadow 0.3s;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1); 
+            flex: 0 1 250px; 
+            max-width: 250px;
+            transition: all 0.3s ease-in-out; 
+            position: relative;
+            overflow: hidden;
         }
+        
+        
         .team-card:hover {
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            transform: translateY(-5px);
         }
-
+        
+        
         .team-card img {
-            width: 100px;
-            height: 100px;
+            width: 120px;
+            height: 120px;
             border-radius: 50%;
             object-fit: cover;
-            margin-bottom: 15px;
-            border: 3px solid #008CBA;
+            margin-bottom: 20px;
+            border: 5px solid #008CBA;
+            box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.8), 0 2px 4px rgba(0, 0, 0, 0.2);
+            display: block; 
+            margin-left: auto;
+            margin-right: auto;
         }
-
-        .team-card h2 {
-            margin: 5px 0;
-            font-size: 1.2em;
-            color: #333;
-        }
-
+        
+        
         .team-card p {
-            margin: 0;
-            color: #555;
-            font-size: 0.9em;
+            margin: 10px 0 0 0;
+            font-size: 0.95em;
+            font-weight: bold;
+            color: white; 
+            background-color: #4CAF50;
+            padding: 5px 10px;
+            border-radius: 4px;
+            display: inline-block;
+        }
+        
+        
+        .team-card h2 {
+            margin: 0 0 10px 0;
+            font-size: 1.5em; 
+            color: #333;
         }
 
         /* FOOTER */
